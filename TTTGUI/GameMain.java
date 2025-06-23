@@ -5,6 +5,7 @@ import java.awt.event.*;
 import java.sql.*;
 import java.util.Scanner;
 import javax.swing.*;
+import javax.sound.sampled.*;
 /**
  * Tic-Tac-Toe: Two-player Graphic version with better OO design.
  * The TTT.TTT.Board and TTT.TTT.Cell classes are separated in their own classes.
@@ -42,8 +43,20 @@ public class GameMain extends JPanel {
                 if (currentState == State.PLAYING) {
                     if (row >= 0 && row < Board.ROWS && col >= 0 && col < Board.COLS
                             && board.cells[row][col].content == Seed.NO_SEED) {
+                        if (currentPlayer == Seed.CROSS) {
+                            playSound("x_input.wav");
+                        } else {
+                            playSound("o_input.wav");
+                        }
                         // Update cells[][] and return the new game state after the move
                         currentState = board.stepGame(currentPlayer, row, col);
+                        if (currentState == State.CROSS_WON) {
+                            playSound("x_win.wav");
+                        } else if (currentState == State.NOUGHT_WON) {
+                            playSound("o_win.wav");
+                        } else if (currentState == State.DRAW) {
+                            playSound("draw.wav");
+                        }
                         // Switch player
                         currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
                     }
@@ -89,6 +102,8 @@ public class GameMain extends JPanel {
         }
         currentPlayer = Seed.CROSS;    // cross plays first
         currentState = State.PLAYING;  // ready to play
+        // Play sound at game start
+        playSound("start.wav");
     }
 
     /** Custom painting codes on this JPanel */
@@ -173,5 +188,18 @@ public class GameMain extends JPanel {
             e.printStackTrace();
         }
         return rPassword;
+    }
+
+    private void playSound(String soundFileName) {
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(
+                    getClass().getResource(soundFileName));
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.start();
+        } catch (Exception ex) {
+            System.err.println("Error playing sound: " + soundFileName);
+            ex.printStackTrace();
+        }
     }
 }
