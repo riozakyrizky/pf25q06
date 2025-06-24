@@ -7,30 +7,54 @@ public class LoginDialog extends JDialog {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private boolean succeeded;
+    private ImageIcon backgroundIcon;
 
     public LoginDialog(Frame parent) {
         super(parent, "Login", true);
-        JPanel panel = new JPanel(new GridLayout(3, 2, 5, 5));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        panel.add(new JLabel("Username:"));
+        // Load background image
+        try {
+            backgroundIcon = new ImageIcon(getClass().getResource("/TTTGUI/background.jpg")); // or background.png
+        } catch (Exception e) {
+            System.err.println("Background image not found.");
+            e.printStackTrace();
+        }
+
+        // Custom panel with background
+        JPanel backgroundPanel = new JPanel() {
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (backgroundIcon != null) {
+                    g.drawImage(backgroundIcon.getImage(), 0, 0, getWidth(), getHeight(), this);
+                }
+            }
+        };
+        backgroundPanel.setLayout(new GridBagLayout()); // Allows us to center the form
+
+        // ===== Login Form Panel =====
+        JPanel formPanel = new JPanel(new GridLayout(3, 2, 10, 10));
+        formPanel.setOpaque(false); // transparent so background shows
+        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+
+        formPanel.add(new JLabel("Username:"));
         usernameField = new JTextField(15);
-        panel.add(usernameField);
+        formPanel.add(usernameField);
 
-        panel.add(new JLabel("Password:"));
+        formPanel.add(new JLabel("Password:"));
         passwordField = new JPasswordField(15);
-        panel.add(passwordField);
+        formPanel.add(passwordField);
 
         JButton loginButton = new JButton("Login");
         JButton cancelButton = new JButton("Cancel");
-        panel.add(loginButton);
-        panel.add(cancelButton);
+        formPanel.add(loginButton);
+        formPanel.add(cancelButton);
 
-        getContentPane().add(panel, BorderLayout.CENTER);
-        pack();
-        setResizable(false);
-        setLocationRelativeTo(parent);
+        // Add form panel to background panel
+        backgroundPanel.add(formPanel); // centered due to GridBagLayout
 
+        setContentPane(backgroundPanel);
+
+        // ===== Button Actions =====
         loginButton.addActionListener(e -> {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
@@ -56,6 +80,11 @@ public class LoginDialog extends JDialog {
             succeeded = false;
             dispose();
         });
+
+        pack();
+        setSize(400, 300); // fixed size for better background scaling
+        setResizable(false);
+        setLocationRelativeTo(parent);
     }
 
     public boolean isSucceeded() {
