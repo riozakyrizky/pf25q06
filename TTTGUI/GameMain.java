@@ -132,21 +132,20 @@ public class GameMain extends JPanel {
 
     /** The entry "main" method */
     public static void main(String[] args) throws ClassNotFoundException {
-        boolean wrongPassword = true;
-        do {
-            Scanner sc = new Scanner(System.in);
-            System.out.print("Username: ");
-            String un = sc.next();
-            System.out.print("Password: ");
-            String pass = sc.next();
-            String rPassword = retrievePassword(un);
-            if(pass.equals(rPassword)){
-                wrongPassword = false;
-                System.out.println("Login successful, enjoy the game!");
+        SwingUtilities.invokeLater(() -> {
+            LoginDialog loginDlg = new LoginDialog(null);
+            loginDlg.setVisible(true);
+            if (loginDlg.isSucceeded()) {
+                JFrame frame = new JFrame(TITLE);
+                frame.setContentPane(new GameMain());
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
             } else {
-                System.out.println("Wrong password! Please try again.");
+                System.exit(0);
             }
-        } while(wrongPassword);
+        });
         // Run GUI construction codes in Event-Dispatching thread for thread safety
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
